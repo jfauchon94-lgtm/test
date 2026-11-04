@@ -15,4 +15,9 @@ local.properties
 kotlin-js-store
 /kfire/
 /kfire-*.tar.gz
+/*.ipa
+/ota/*.ipa
+/signing/
+
+
 
