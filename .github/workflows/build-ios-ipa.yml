@@ -60,23 +60,26 @@ jobs:
             AD_HOC_CODE_SIGNING_ALLOWED=YES \
             build
 
-      - name: Package .app into test-ios.ipa
-        working-directory: iosApp
-        run: |
-          mkdir -p Payload
-          cp -r build/Build/Products/Release-iphoneos/test.app Payload/
-          zip -r9 test-ios.ipa Payload
-
-      - name: Sign .ipa with Apple Developer Certificate & Provisioning Profile
+      - name: Bundle Compose Resources, Sign .app & Package test-ios-signed.ipa
         working-directory: iosApp
         env:
           IOS_CERT_PEM_BASE64: ${{ secrets.IOS_CERT_PEM_BASE64 }}
           IOS_KEY_PEM_BASE64: ${{ secrets.IOS_KEY_PEM_BASE64 }}
           IOS_MOBILEPROVISION_BASE64: ${{ secrets.IOS_MOBILEPROVISION_BASE64 }}
         run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/test.app Payload/
+
+          # Bundle Compose Multiplatform resources into Payload/test.app
+          mkdir -p Payload/test.app/compose-resources/composeResources/test.shared.generated.resources
+          mkdir -p Payload/test.app/composeResources/test.shared.generated.resources
+          cp -r ../shared/src/commonMain/composeResources/* Payload/test.app/compose-resources/composeResources/test.shared.generated.resources/
+          cp -r ../shared/src/commonMain/composeResources/* Payload/test.app/composeResources/test.shared.generated.resources/
+
+          # Embed provisioning profile and sign with Apple Developer certificate
           echo "$IOS_CERT_PEM_BASE64" | base64 --decode > ios_development.pem
           echo "$IOS_KEY_PEM_BASE64" | base64 --decode > ios_development.key
-          echo "$IOS_MOBILEPROVISION_BASE64" | base64 --decode > test_dev.mobileprovision
+          echo "$IOS_MOBILEPROVISION_BASE64" | base64 --decode > Payload/test.app/embedded.mobileprovision
           cat << 'EOF' > entitlements.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -99,10 +102,10 @@ jobs:
           ./apple-codesign-0.29.0-x86_64-apple-darwin/rcodesign sign \
             --pem-file ios_development.pem \
             --pem-file ios_development.key \
-            --mobileprovision test_dev.mobileprovision \
             --entitlements-xml-file entitlements.plist \
-            test-ios.ipa \
-            ../ota/test-ios-signed.ipa
+            Payload/test.app
+
+          zip -r9 ../ota/test-ios-signed.ipa Payload
 
       - name: Upload Signed test-ios-signed.ipa Artifact
         uses: actions/upload-artifact@v4
