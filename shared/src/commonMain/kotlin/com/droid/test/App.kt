@@ -29,16 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.CollectionItemInfo
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.collectionInfo
 import androidx.compose.ui.semantics.collectionItemInfo
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -129,11 +126,7 @@ fun App() {
                 text = "Plateforme active : ${platform.name}",
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .semantics {
-                        contentDescription = "Plateforme active : ${platform.name}"
-                    },
+                modifier = Modifier.padding(top = 8.dp),
             )
 
             Button(
@@ -141,16 +134,10 @@ fun App() {
                 modifier = Modifier
                     .padding(top = 24.dp)
                     .semantics {
-                        role = Role.Button
                         stateDescription = if (showDetails) {
-                            "Détails affichés"
+                            "Développé"
                         } else {
-                            "Détails masqués"
-                        }
-                        contentDescription = if (showDetails) {
-                            "Masquer les informations du projet"
-                        } else {
-                            "Plus d'infos : afficher la liste des informations du projet"
+                            "Réduit"
                         }
                     },
             ) {
@@ -186,7 +173,6 @@ fun App() {
                                 .fillMaxWidth()
                                 .heightIn(max = 320.dp)
                                 .semantics {
-                                    contentDescription = "Liste des détails du projet test (${detailItems.size} éléments)"
                                     collectionInfo = CollectionInfo(
                                         rowCount = detailItems.size,
                                         columnCount = 1,
@@ -200,27 +186,25 @@ fun App() {
                                 key = { _, item -> item.id },
                             ) { index, item ->
                                 Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .semantics(mergeDescendants = true) {
-                                            contentDescription = "Élément ${index + 1} sur ${detailItems.size} : ${item.label}, ${item.value}"
-                                            collectionItemInfo = CollectionItemInfo(
-                                                rowIndex = index,
-                                                rowSpan = 1,
-                                                columnIndex = 0,
-                                                columnSpan = 1,
-                                            )
-                                        },
+                                    modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(vertical = 6.dp),
+                                            .padding(vertical = 6.dp)
+                                            .semantics(mergeDescendants = true) {
+                                                collectionItemInfo = CollectionItemInfo(
+                                                    rowIndex = index,
+                                                    rowSpan = 1,
+                                                    columnIndex = 0,
+                                                    columnSpan = 1,
+                                                )
+                                            },
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         Text(
-                                            text = item.label,
+                                            text = "${item.label} :",
                                             fontWeight = FontWeight.Medium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.weight(0.45f),
