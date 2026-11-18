@@ -1,7 +1,7 @@
 [versions]
 kfire = "0.1.0"
 googleServices = "4.4.2"
-agp = "9.3.1"
+agp = "9.5.1"
 android-compileSdk = "36"
 android-minSdk = "26"
 android-targetSdk = "36"

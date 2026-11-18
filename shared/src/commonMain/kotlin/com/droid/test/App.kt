@@ -83,7 +83,7 @@ fun App() {
                 ProjectDetailItem(
                     id = "agp_version",
                     label = "Android Gradle Plugin",
-                    value = "9.3.1 (Découplé)",
+                    value = "9.5.1 (Découplé)",
                 ),
                 ProjectDetailItem(
                     id = "architecture",
